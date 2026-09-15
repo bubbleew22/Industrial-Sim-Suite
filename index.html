@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d1117">
+<title>Engineering Sim Suite</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#0d1117;--pnl:#161b22;--pnl2:#1c2330;--brd:#2d3748;--tx:#e6edf3;--mut:#8b949e;--acc:#38bdf8;--grn:#22c55e;--red:#ef4444;--ylw:#eab308;--org:#f97316}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,Segoe UI,Roboto,sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;flex-direction:column;height:100vh}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--pnl);border-bottom:1px solid var(--brd)}
+header h1{font-size:17px;flex:1}
+.badge{font-size:11px;padding:3px 8px;border-radius:10px;background:var(--pnl2);border:1px solid var(--brd);color:var(--mut)}
+.badge.on{color:var(--grn);border-color:var(--grn)}
+#hamb{display:none;background:none;border:1px solid var(--brd);color:var(--tx);font-size:18px;border-radius:6px;padding:2px 10px;cursor:pointer}
+#wrap{display:flex;flex:1;min-height:0}
+nav{width:228px;background:var(--pnl);border-right:1px solid var(--brd);overflow-y:auto;padding:8px}
+nav .grp{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin:12px 6px 4px}
+.nav-btn{display:block;width:100%;text-align:left;background:none;border:0;color:var(--tx);padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13.5px}
+.nav-btn:hover{background:var(--pnl2)}
+.nav-btn.act{background:var(--acc);color:#04121f;font-weight:600}
+main{flex:1;overflow-y:auto;padding:16px}
+section.module{display:none;max-width:940px;margin:0 auto}
+section.module.act{display:block}
+h2{font-size:17px;margin-bottom:4px}
+h3{font-size:14px;margin-bottom:8px}
+.sub{color:var(--mut);font-size:12px;margin-bottom:14px}
+.card{background:var(--pnl);border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ro{background:var(--pnl2);border:1px solid var(--brd);border-radius:10px;padding:10px;text-align:center}
+.ro .v{font-size:23px;font-weight:700;font-family:Consolas,monospace}
+.ro .l{font-size:11px;color:var(--mut)}
+.btn{background:var(--pnl2);color:var(--tx);border:1px solid var(--brd);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;margin:2px}
+.btn:hover{border-color:var(--acc)}
+.btn.on{background:var(--grn);color:#04160a;border-color:var(--grn);font-weight:600}
+.btn.danger{border-color:var(--red);color:var(--red)}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.row label{font-size:13px;color:var(--mut);min-width:130px}
+input[type=number],input[type=text],select,textarea{background:var(--pnl2);border:1px solid var(--brd);color:var(--tx);padding:7px 10px;border-radius:8px;font-size:14px}
+input[type=range]{flex:1;accent-color:var(--acc)}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--acc)}
+.alarm{padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;display:none;margin:8px 0}
+.alarm.warn{display:block;background:#3d3000;color:var(--ylw)}
+.alarm.trip{display:block;background:#3d0d0d;color:var(--red)}
+canvas{width:100%;border-radius:8px;background:#0a0e14}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 8px;border:1px solid var(--brd);text-align:left}
+th{background:var(--pnl2);color:var(--mut)}
+.res{background:var(--pnl2);border:1px dashed var(--acc);border-radius:8px;padding:10px;font-size:15px;margin-top:8px;display:none}
+.res b{color:var(--acc)}
+.loop{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--pnl2);border-radius:10px;padding:14px;flex-wrap:wrap;font-size:12px}
+.loop .box{border:2px solid var(--acc);border-radius:8px;padding:8px 10px;text-align:center;min-width:80px}
+.loop .ma{font-size:20px;font-weight:700;color:var(--ylw);font-family:Consolas,monospace}
+.loop .seg{flex:1;min-width:50px;height:3px;background:var(--acc)}
+pre.code{background:#0a0e14;border:1px solid var(--brd);border-radius:8px;padding:10px;font-size:12px;color:#9ecbff;overflow-x:auto}
+ul.log{list-style:none;font-size:12px;max-height:150px;overflow-y:auto}
+ul.log li{padding:4px 6px;border-bottom:1px solid var(--brd);color:var(--mut)}
+.tr-row{display:grid;grid-template-columns:1fr 76px auto auto;gap:8px;align-items:center;background:var(--pnl2);border:1px solid var(--brd);border-radius:8px;padding:8px;margin:6px 0;font-size:13px}
+.tr-row .amp{font-family:Consolas,monospace;font-weight:700;color:var(--ylw)}
+#calcgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+#calcgrid button{padding:14px;font-size:16px}
+#calcd{width:100%;text-align:right;font-size:26px;font-family:Consolas,monospace;padding:12px}
+.bar{height:10px;background:var(--pnl2);border-radius:6px;overflow:hidden;border:1px solid var(--brd)}
+.bar>div{height:100%;background:var(--acc)}
+@media(max-width:760px){#hamb{display:block}nav{position:fixed;left:-240px;top:49px;bottom:0;z-index:9;transition:.2s}nav.open{left:0}.grid2,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+ <button id="hamb">☰</button>
+ <h1>🏭 Engineering Sim Suite</h1>
+ <span class="badge" id="netstat">checking…</span>
+ <span class="badge">v2.1 offline</span>
+</header>
+<div id="wrap">
+<nav id="nav">
+ <div class="grp">🔥 Boiler</div>
+ <button class="nav-btn act" data-m="b1">Boiler Sim v1</button>
+ <button class="nav-btn" data-m="b2">Boiler Sim v2 (PID)</button>
+ <button class="nav-btn" data-m="steam">Steam Tools</button>
+ <div class="grp">🎛️ Instrument</div>
+ <button class="nav-btn" data-m="tx">Transmitter 4–20mA</button>
+ <button class="nav-btn" data-m="txrt">Realtime Transmitter</button>
+ <button class="nav-btn" data-m="pv">Control Valve Positioner</button>
+ <div class="grp">⚡ Electrical</div>
+ <button class="nav-btn" data-m="panel">Panel Simulator</button>
+ <button class="nav-btn" data-m="plc">PLC Sim (S7 style)</button>
+ <button class="nav-btn" data-m="eowl">Electrical Calcs</button>
+ <div class="grp">⚙️ Mechanical</div>
+ <button class="nav-btn" data-m="brg">🔩 Bearing Finder</button>
+ <button class="nav-btn" data-m="mowl">Mechanical Calcs</button>
+ <div class="grp">💧 Hydraulics</div>
+ <button class="nav-btn" data-m="hpress">MDF Hot Press (15-Platen)</button>
+ <button class="nav-btn" data-m="hrel">Pilot Relief Valve</button>
+ <button class="nav-btn" data-m="hcalc">Hydraulic Calcs</button>
+ <div class="grp">🧰 Utility</div>
+ <button class="nav-btn" data-m="calc">🧮 Calculator</button>
+ <button class="nav-btn" data-m="conv">🔄 Unit Converter</button>
+ <button class="nav-btn" data-m="notes">📝 Notes</button>
+ <button class="nav-btn" data-m="ref">📚 Reference Tables</button>
+ <button class="nav-btn" data-m="set">⚙️ Settings / About</button>
+</nav>
+<main>
+
+<!-- BOILER V1 -->
+<section class="module act" id="m-b1">
+ <h2>Boiler Sim v1 — Manual</h2><div class="sub">Burner, feedwater pump & steam valve — manual control, trips & animation</div>
+ <div class="grid2">
+  <div class="card"><canvas id="b1cv" width="420" height="200"></canvas>
+   <div class="row"><label>🔥 Burner</label><button class="btn" id="b1burn">OFF</button><label style="min-width:auto">💧 Pump</label><button class="btn" id="b1pump">OFF</button><button class="btn danger" id="b1reset">Reset</button></div>
+  </div>
+  <div class="card">
+   <div class="grid3">
+    <div class="ro"><div class="v" id="b1p">1.0</div><div class="l">Drum Pressure (bar)</div></div>
+    <div class="ro"><div class="v" id="b1lvl">50</div><div class="l">Water Level (%)</div></div>
+    <div class="ro"><div class="v" id="b1t">100</div><div class="l">Steam Temp (°C)</div></div>
+   </div>
+   <div class="row"><label>Steam Valve</label><input type="range" id="b1valve" min="0" max="100" value="20"><span id="b1vv">20%</span></div>
+   <div class="alarm" id="b1alarm"></div>
+  </div>
+ </div>
+</section>
+
+<!-- BOILER V2 -->
+<section class="module" id="m-b2">
+ <h2>Boiler Sim v2 — Auto PID + Trends</h2><div class="sub">Sab setpoints editable: demand, PID gains, trip limits</div>
+ <div class="card"><canvas id="b2cv" width="860" height="220"></canvas></div>
+ <div class="grid2">
+  <div class="card">
+   <div class="grid3">
+    <div class="ro"><div class="v" id="b2p">1.0</div><div class="l">Pressure (bar)</div></div>
+    <div class="ro"><div class="v" id="b2lvl">50</div><div class="l">Level (%)</div></div>
+    <div class="ro"><div class="v" id="b2out">0</div><div class="l">Steam (kg/h)</div></div>
+   </div>
+   <div class="row"><label>Control Mode</label><button class="btn" id="b2mode">MANUAL</button></div>
+   <div class="row"><label>Pressure SP (bar)</label><input type="number" id="b2sp" value="8" min="1" max="11" step="0.5"></div>
+   <div class="row"><label>Level SP (%)</label><input type="number" id="b2spl" value="50" min="20" max="80" step="5"></div>
+   <div class="row"><label>Steam Demand (%)</label><input type="range" id="b2dem" min="0" max="100" value="40"><span id="b2demv">40%</span></div>
+   <div class="row"><label>PID Kp / Ki</label><input type="number" id="b2kp" value="12" step="0.5" style="width:74px"><input type="number" id="b2ki" value="8" step="0.5" style="width:74px"></div>
+   <div class="row"><label>HP Trip (bar)</label><input type="number" id="b2hp" value="12" step="0.5" style="width:74px"><label style="min-width:auto">LL Level %</label><input type="number" id="b2ll" value="10" step="1" style="width:74px"></div>
+   <div class="row"><label>Steam Valve</label><input type="range" id="b2valve" min="0" max="100" value="30"><span id="b2vv">30%</span></div>
+   <div class="row"><label style="min-width:auto">Burner</label><button class="btn" id="b2burn">OFF</button><label style="min-width:auto">Pump</label><button class="btn" id="b2pump">OFF</button><button class="btn danger" id="b2reset">Reset</button></div>
+  </div>
+  <div class="card"><h3>🚨 Alarm / Event Log</h3><ul class="log" id="b2log"></ul></div>
+ </div>
+</section>
+
+<!-- STEAM TOOLS -->
+<section class="module" id="m-steam">
+ <h2>Steam Tools</h2><div class="sub">Saturated steam properties & blowdown rate calculation</div>
+ <div class="grid2">
+  <div class="card"><h3>1) Saturated Steam Properties</h3>
+   <div class="row"><label>Gauge Pressure (bar g)</label><input type="number" id="stp" value="8" min="0" max="15" step="0.5"><button class="btn" onclick="steamCalc()">Calculate</button></div>
+   <div class="res" id="stres"></div></div>
+  <div class="card"><h3>2) Blowdown Rate (TDS method)</h3>
+   <div class="row"><label>Steam Output (kg/h)</label><input type="number" id="bdst" value="2000"></div>
+   <div class="row"><label>Feedwater TDS (ppm)</label><input type="number" id="bdtf" value="150"></div>
+   <div class="row"><label>Boiler Max TDS (ppm)</label><input type="number" id="bdtm" value="2500"><button class="btn" onclick="bdCalc()">Calculate</button></div>
+   <div class="res" id="bdres"></div></div>
+ </div>
+</section>
+
+<!-- TRANSMITTER -->
+<section class="module" id="m-tx">
+ <h2>Transmitter Sim — 4–20 mA Loop</h2><div class="sub">Apni range khud set karein (LRV/URV) — PT100 etc. + NAMUR NE43 faults</div>
+ <div class="grid2">
+  <div class="card">
+   <div class="row"><label>Transmitter Type</label><select id="txtype">
+    <option value="t" selected>Temp PT100 (RTD)</option><option value="p">Pressure</option><option value="f">Flow</option><option value="l">Level</option></select></div>
+   <div class="row"><label>Range LRV</label><input type="number" id="txlrv" value="0" step="any" style="width:90px"><label style="min-width:auto">URV</label><input type="number" id="txurv" value="200" step="any" style="width:90px"><span style="font-size:12px;color:var(--mut)" id="txunit">°C</span></div>
+   <div class="row"><label>Process Value</label><input type="range" id="txpv" min="0" max="1000" value="500"><span id="txpvo"></span></div>
+   <div class="row"><label>Loop Fault</label><select id="txfault">
+    <option value="ok">Normal</option><option value="open">Wire open (&lt;3.6 mA)</option><option value="short">Short (&gt;21 mA)</option><option value="sat">Saturated (&gt;20.5 mA)</option></select></div>
+   <div class="loop">⚡ 24V DC <div class="seg"></div><div class="box">TX<br><span class="ma" id="txma">12.00</span> mA</div><div class="seg"></div>🟥 250Ω <div class="seg"></div>📥 AI</div>
+  </div>
+  <div class="card">
+   <div class="grid3">
+    <div class="ro"><div class="v" id="txpvr">100</div><div class="l">PV (eng. units)</div></div>
+    <div class="ro"><div class="v" id="txma2">12.00</div><div class="l">Loop Current (mA)</div></div>
+    <div class="ro"><div class="v" id="txpct">50</div><div class="l">% of Span</div></div>
+   </div>
+   <div class="alarm" id="txalarm"></div>
+   <p style="font-size:12px;color:var(--mut);margin-top:10px">Example PT100 range: LRV=-50, URV=300. Span=URV−LRV. mA = 4+16×(PV−LRV)/Span. &lt;3.6 mA open, &gt;21 mA short (NAMUR NE43).</p>
+  </div>
+ </div>
+</section>
+
+<!-- REALTIME TX -->
+<section class="module" id="m-txrt">
+ <h2>Realtime Transmitter Sim</h2><div class="sub">Live noisy signal, rolling trend, stats & alarm threshold</div>
+ <div class="card"><canvas id="rtcv" width="860" height="240"></canvas></div>
+ <div class="card">
+  <div class="grid3">
+   <div class="ro"><div class="v" id="rtpv">--</div><div class="l">Live PV</div></div>
+   <div class="ro"><div class="v" id="rtma">--</div><div class="l">mA Output</div></div>
+   <div class="ro"><div class="v" id="rtst" style="font-size:15px">--</div><div class="l">Min / Max / Avg</div></div>
+  </div>
+  <div class="row"><label>Tag</label><select id="rttag"><option value="t">TT-101 Temp 0–200°C</option><option value="p">PT-102 Pressure 0–10 bar</option><option value="f">FT-301 Flow 0–100 m³/h</option></select>
+   <button class="btn" id="rtstart">▶ Start</button></div>
+  <div class="row"><label>Sample Rate</label><input type="range" id="rtrate" min="100" max="2000" value="500" step="100"><span id="rtratev">500 ms</span></div>
+  <div class="row"><label>Noise %</label><input type="range" id="rtnoise" min="0" max="10" value="2"><span id="rtnoisev">2%</span></div>
+  <div class="row"><label>Alarm Threshold</label><input type="number" id="rtalarm" value="150"></div>
+ </div>
+</section>
+
+<!-- POSITIONER -->
+<section class="module" id="m-pv">
+ <h2>Control Valve Positioner Sim</h2><div class="sub">4–20mA command → positioner → stem travel → flow. Stiction & deadband practice</div>
+ <div class="grid2">
+  <div class="card"><canvas id="pvcv" width="420" height="260"></canvas></div>
+  <div class="card">
+   <div class="grid3">
+    <div class="ro"><div class="v" id="pvma">12.00</div><div class="l">Command (mA)</div></div>
+    <div class="ro"><div class="v" id="pvstem">50</div><div class="l">Stem Position (%)</div></div>
+    <div class="ro"><div class="v" id="pvflow">50</div><div class="l">Flow (%)</div></div>
+   </div>
+   <div class="row"><label>Command (4–20 mA)</label><input type="range" id="pvcmd" min="4" max="20" value="12" step="0.1"></div>
+   <div class="row"><label>Characteristic</label><select id="pvchar"><option value="lin">Linear</option><option value="eq">Equal %</option></select></div>
+   <div class="row"><label>Deadband (%)</label><input type="range" id="pvdb" min="0" max="10" value="1" step="0.5"><span id="pvdbv">1%</span></div>
+   <div class="row"><label>Stiction (%)</label><input type="range" id="pvst" min="0" max="10" value="2" step="0.5"><span id="pvstv">2%</span></div>
+   <div class="row"><label>Air Supply</label><button class="btn on" id="pvair">OK</button></div>
+   <div class="alarm" id="pvalarm"></div>
+  </div>
+ </div>
+</section>
+
+<!-- PANEL -->
+<section class="module" id="m-panel">
+ <h2>Electrical Panel Simulator</h2><div class="sub">Incomer, busbar loading, feeders — voltage & trip threshold editable, kW per feeder editable</div>
+ <div class="card">
+  <div class="row"><label>Incomer Rating (A)</label><input type="number" id="pnlrating" value="160" min="40" max="630" step="10">
+   <label style="min-width:auto">System V</label><input type="number" id="pnlvolt" value="400" style="width:84px">
+   <label style="min-width:auto">Trip @ %</label><input type="number" id="pnltripset" value="105" step="5" style="width:74px">
+   <span class="badge" id="pnltrip" style="border-color:var(--grn);color:var(--grn)">INCOMER CLOSED</span>
+   <button class="btn danger" id="pnlreset">Reset Incomer</button></div>
+  <div class="bar"><div id="pnldemand" style="width:0%"></div></div>
+  <div class="grid3" style="margin-top:10px">
+   <div class="ro"><div class="v" id="pnla">0</div><div class="l">Bus Current (A)</div></div>
+   <div class="ro"><div class="v" id="pnlkw">0</div><div class="l">Total Load (kW)</div></div>
+   <div class="ro"><div class="v" id="pnlpc">0%</div><div class="l">Demand</div></div>
+  </div>
+  <div id="pnlrows" style="margin-top:10px"></div>
+  <div class="alarm" id="pnlalarm"></div>
+ </div>
+</section>
+
+<!-- PLC -->
+<section class="module" id="m-plc">
+ <h2>PLC Simulator — Siemens S7 Style</h2><div class="sub">Ladder scan (100 ms): Start/Stop latch + TON timer + level switch. I0.x / Q0.x / T1</div>
+ <div class="card"><canvas id="plccv" width="860" height="230"></canvas></div>
+ <div class="card">
+  <div class="row">
+   <label style="min-width:auto">Inputs:</label>
+   <button class="btn" id="plcstart">I0.0 START (hold)</button>
+   <button class="btn" id="plcstop">I0.1 STOP (hold)</button>
+   <label style="min-width:auto">I0.2 Level OK</label><input type="checkbox" id="plcsw" style="width:20px;height:20px">
+   <button class="btn danger" id="plcreset">Reset</button>
+  </div>
+  <pre class="code">NETWORK 1:  A "I0.0"; O "Q0.0"; AN "I0.1"; = "Q0.0"      // contactor latch
+NETWORK 2:  A "Q0.0"; L S5T#3S; TON "T1"; A "T1"; = "Q0.1"  // 3s delay → running lamp
+NETWORK 3:  A "I0.2"; = "Q0.2"                              // level OK → permit lamp</pre>
+ </div>
+</section>
+
+<!-- ELEC CALCS -->
+<section class="module" id="m-eowl">
+ <h2>Electrical Toolbox</h2><div class="sub">Load current, voltage drop + cable sizing, PF correction, motor starting</div>
+ <div class="grid2">
+  <div class="card"><h3>1) Load → Current</h3>
+   <div class="row"><label>Power P (kW)</label><input type="number" id="ep" value="10"></div>
+   <div class="row"><label>Voltage (V)</label><input type="number" id="ev" value="400"></div>
+   <div class="row"><label>Power Factor</label><input type="number" id="epf" value="0.85" step="0.05"></div>
+   <div class="row"><label>Phase</label><select id="eph"><option value="3">3-φ</option><option value="1">1-φ</option></select><button class="btn" onclick="eCalc()">Calculate</button></div>
+   <div class="res" id="eres"></div></div>
+  <div class="card"><h3>2) Voltage Drop + Cable</h3>
+   <div class="row"><label>Current I (A)</label><input type="number" id="vdcur" value="20"></div>
+   <div class="row"><label>Length (m)</label><input type="number" id="vdlen" value="50"></div>
+   <div class="row"><label>Conductor</label><select id="vdmat"><option value="cu">Copper</option><option value="al">Aluminium</option></select></div>
+   <div class="row"><label>System</label><select id="vdph"><option value="3">3-φ 400V</option><option value="1">1-φ 230V</option></select><button class="btn" onclick="vdCalc()">Calculate</button></div>
+   <div class="res" id="vdres"></div></div>
+  <div class="card"><h3>3) PF Correction Capacitor</h3>
+   <div class="row"><label>Load P (kW)</label><input type="number" id="pfp" value="50"></div>
+   <div class="row"><label>Present PF</label><input type="number" id="pf1" value="0.75" step="0.01"></div>
+   <div class="row"><label>Target PF</label><input type="number" id="pf2" value="0.95" step="0.01"><button class="btn" onclick="pfCalc()">Calculate</button></div>
+   <div class="res" id="pfres"></div></div>
+  <div class="card"><h3>4) Motor Start (Star/Delta)</h3>
+   <div class="row"><label>Motor FLC (A)</label><input type="number" id="sdcur" value="20"><button class="btn" onclick="sdCalc()">Calculate</button></div>
+   <div class="res" id="sdres"></div></div>
+ </div>
+</section>
+
+<!-- BEARING FINDER -->
+<section class="module" id="m-brg">
+ <h2>🔩 Bearing Finder</h2><div class="sub">Number → size · Size → number. DG=Deep Groove Ball, AC=Angular Contact, SA=Self-Align Ball, TH=Thrust, CR=Cylindrical Roller, SR=Spherical Roller, TA=Taper Roller, ND=Needle</div>
+ <div class="card">
+  <div class="row"><label>Bearing Number</label><input type="text" id="bnum" placeholder="e.g. 6205, NU210, 30208" style="flex:1"><button class="btn" onclick="brgByNum()">🔍 Search</button></div>
+  <div class="row"><label>Shaft Ø d (mm)</label><input type="number" id="bbore" placeholder="e.g. 25" style="width:100px">
+   <label style="min-width:auto">Type</label><select id="btype">
+    <option value="">All types</option><option>DG</option><option>AC</option><option>SA</option><option>TH</option><option>CR</option><option>SR</option><option>TA</option><option>ND</option></select>
+   <button class="btn" onclick="brgBySize()">📏 Find by Size</button></div>
+  <div class="res" id="bres"></div>
+  <div id="btablewrap" style="margin-top:10px"></div>
+  <p style="font-size:12px;color:var(--mut);margin-top:10px">📐 Number system: last 2 digits × 5 = bore mm (6205 → 05×5 = 25 mm). Pehle digit(s) = series, 3rd digit = width/OD series. 302xx = Taper, NU = Cylindrical, 222xx = Spherical.</p>
+ </div>
+</section>
+
+<!-- MECH CALCS -->
+<section class="module" id="m-mowl">
+ <h2>Mechanical Toolbox</h2><div class="sub">Pump power, pipe pressure drop, valve Cv, bolt torque</div>
+ <div class="grid2">
+  <div class="card"><h3>1) Pump Hydraulic Power</h3>
+   <div class="row"><label>Flow Q (m³/h)</label><input type="number" id="mq" value="20"></div>
+   <div class="row"><label>Head H (m)</label><input type="number" id="mh" value="25"></div>
+   <div class="row"><label>Efficiency η</label><input type="number" id="meff" value="0.7" step="0.05"><button class="btn" onclick="pumpCalc()">Calculate</button></div>
+   <div class="res" id="mres"></div></div>
+  <div class="card"><h3>2) Pipe Velocity & ΔP</h3>
+   <div class="row"><label>Flow Q (m³/h)</label><input type="number" id="pq" value="20"></div>
+   <div class="row"><label>Inner Ø (mm)</label><input type="number" id="pd" value="100"></div>
+   <div class="row"><label>Length (m)</label><input type="number" id="pl" value="100"><button class="btn" onclick="pipeCalc()">Calculate</button></div>
+   <div class="res" id="pres"></div></div>
+  <div class="card"><h3>3) Valve Cv (Liquid)</h3>
+   <div class="row"><label>Flow Q (m³/h)</label><input type="number" id="cvq" value="20"></div>
+   <div class="row"><label>ΔP across valve (bar)</label><input type="number" id="cvdp" value="0.5" step="0.1"></div>
+   <div class="row"><label>SG (water=1)</label><input type="number" id="cvsg" value="1" step="0.1"><button class="btn" onclick="cvCalc()">Calculate</button></div>
+   <div class="res" id="cvres"></div></div>
+  <div class="card"><h3>4) Bolt Torque</h3>
+   <div class="row"><label>Clamp Load (kN)</label><input type="number" id="btf" value="20"></div>
+   <div class="row"><label>Bolt Ø (mm)</label><input type="number" id="btd" value="12" step="0.5"><button class="btn" onclick="boltCalc()">Calculate</button></div>
+   <div class="res" id="btres"></div></div>
+ </div>
+</section>
+
+<!-- MDF HOT PRESS -->
+<section class="module" id="m-hpress">
+ <h2>MDF Hot Press Simulator — 15 Platens · 4ft × 16ft</h2><div class="sub">Multi-opening hot press: CLOSE → PRESS → DEGAS → OPEN. PT-201 / TT-202 / TT-203 live values, sab setpoints editable</div>
+ <div class="card"><canvas id="hpcv" width="860" height="300"></canvas></div>
+ <div class="grid2">
+  <div class="card">
+   <div class="grid3">
+    <div class="ro"><div class="v" id="hpp">0</div><div class="l">PT-201 Line (bar)</div></div>
+    <div class="ro"><div class="v" id="hpt">25</div><div class="l">TT-202 Platen (°C)</div></div>
+    <div class="ro"><div class="v" id="hpc">25</div><div class="l">TT-203 Core (°C)</div></div>
+    <div class="ro"><div class="v" id="hpf">0</div><div class="l">Force (ton)</div></div>
+    <div class="ro"><div class="v" id="hpsp2">0</div><div class="l">Specific (kg/cm²)</div></div>
+    <div class="ro"><div class="v" id="hppos" style="font-size:17px">400</div><div class="l">Opening (mm)</div></div>
+   </div>
+   <div class="row"><label>Phase</label><span class="badge" id="hpmode">IDLE</span><span class="badge" id="hptime">0.0 s</span><span class="badge">Boards: <b id="hpcyc">0</b></span></div>
+   <div class="row"><button class="btn" id="hppump">Hydraulic ON</button><button class="btn" id="hpauto">▶ AUTO Cycle</button><button class="btn danger" id="hpest">⏹ E-STOP</button><button class="btn" id="hpreset">Reset</button></div>
+   <div class="alarm" id="hpalarm"></div>
+  </div>
+  <div class="card"><h3>🎛 Setpoints</h3>
+   <div class="row"><label>Platen Temp SP (°C)</label><input type="number" id="hptsp" value="180" min="100" max="220" step="5"></div>
+   <div class="row"><label>Press Pressure SP</label><input type="range" id="hpset" min="50" max="250" value="160" step="5"><span id="hpsetv">160 bar</span></div>
+   <div class="row"><label>Hold Time (s)</label><input type="number" id="hphold" value="24" min="5" max="120"></div>
+   <div class="row"><label>Degas Cycles</label><input type="number" id="hpdeg" value="1" min="0" max="3"></div>
+   <div class="row"><label>Board Thickness (mm)</label><input type="number" id="hpbt" value="9" min="3" max="25" step="0.5"></div>
+   <div class="row"><label>Main Cylinders</label><select id="hpncyl"><option value="8" selected>8 × Ø450</option><option value="10">10 × Ø450</option><option value="12">12 × Ø450</option></select></div>
+   <p style="font-size:12px;color:var(--mut);margin-top:8px">Platen face: 1219 × 4877 mm = 59,450 cm². Force = P(bar) × 1.0197 × 1590 cm² × n<sub>cyl</sub>. MDF specific pressure ≈ 25–35 kg/cm².</p>
+  </div>
+ </div>
+</section>
+
+<!-- PILOT RELIEF -->
+<section class="module" id="m-hrel">
+ <h2>Pilot-Operated Relief Valve Demo</h2><div class="sub">Main spool + pilot poppet + orifice — 400 bar tak</div>
+ <div class="card"><canvas id="prcv" width="860" height="320"></canvas></div>
+ <div class="card">
+  <div class="row"><label>Pump</label><button class="btn" id="prpump">OFF</button>
+   <label style="min-width:auto">Relief Setting (bar)</label><input type="range" id="prset" min="50" max="400" value="250" step="10"><span id="prsetv">250</span>
+   <span style="font-size:12px;color:var(--mut)">Line pressure: <b id="prpp" style="font-family:Consolas">0</b> bar</span></div>
+  <p style="font-size:13px;color:var(--mut);line-height:1.7">Pilot inlet > setting → poppet opens → flow through orifice → spool top pressure drop → main spool lifts → pump flow to tank.</p>
+ </div>
+</section>
+
+<!-- HYD CALCS -->
+<section class="module" id="m-hcalc">
+ <h2>Hydraulic Calculators</h2><div class="sub">Cylinder force, pump power, pipe ΔP (oil), accumulator sizing</div>
+ <div class="grid2">
+  <div class="card"><h3>1) Cylinder Force</h3>
+   <div class="row"><label>Pressure (bar)</label><input type="number" id="hyP" value="315"></div>
+   <div class="row"><label>Bore Ø (mm)</label><input type="number" id="hyD" value="160"><button class="btn" onclick="hyForce()">Calculate</button></div>
+   <div class="res" id="hyFres"></div></div>
+  <div class="card"><h3>2) Pump Power</h3>
+   <div class="row"><label>Pressure (bar)</label><input type="number" id="hyPP" value="315"></div>
+   <div class="row"><label>Flow (L/min)</label><input type="number" id="hyQ" value="20"></div>
+   <div class="row"><label>Efficiency η</label><input type="number" id="hyEff" value="0.9" step="0.05"><button class="btn" onclick="hyPump()">Calculate</button></div>
+   <div class="res" id="hyPres"></div></div>
+  <div class="card"><h3>3) Pipe Velocity & ΔP (oil)</h3>
+   <div class="row"><label>Flow (L/min)</label><input type="number" id="hyfq" value="20"></div>
+   <div class="row"><label>Inner Ø (mm)</label><input type="number" id="hyfid" value="16"></div>
+   <div class="row"><label>Length (m)</label><input type="number" id="hyfl" value="5"><button class="btn" onclick="hyPipe()">Calculate</button></div>
+   <div class="res" id="hyfres"></div></div>
+  <div class="card"><h3>4) Bladder Accumulator</h3>
+   <div class="row"><label>Precharge P0 (bar)</label><input type="number" id="hya0" value="90"></div>
+   <div class="row"><label>P min (bar)</label><input type="number" id="hya1" value="120"></div>
+   <div class="row"><label>P max (bar)</label><input type="number" id="hya2" value="200"></div>
+   <div class="row"><label>Usable oil (L)</label><input type="number" id="hyadv" value="2"><button class="btn" onclick="hyAcc()">Calculate</button></div>
+   <div class="res" id="hyares"></div></div>
+ </div>
+</section>
+
+<!-- CALC -->
+<section class="module" id="m-calc">
+ <h2>🧮 Engineering Calculator</h2><div class="sub">Safe expression calculator</div>
+ <div class="card"><input id="calcd" readonly value="0"><div id="calcgrid"></div></div>
+</section>
+
+<!-- CONVERTER -->
+<section class="module" id="m-conv">
+ <h2>🔄 Unit Converter</h2><div class="sub">Engineering unit conversions</div>
+ <div class="card">
+  <div class="row"><label>Category</label><select id="cvcat"></select></div>
+  <div class="row"><label>Value</label><input type="number" id="cvval" value="1" step="any"></div>
+  <div class="row"><label>From</label><select id="cvfrom"></select><label style="min-width:auto">To</label><select id="cvto"></select></div>
+  <div class="res" id="cvres" style="display:block"></div>
+ </div>
+</section>
+
+<!-- NOTES -->
+<section class="module" id="m-notes">
+ <h2>📝 Field Notes</h2><div class="sub">Autosaved on this device (localStorage)</div>
+ <div class="card"><textarea id="notepad" rows="14" style="width:100%" placeholder="Maintenance notes, readings, checklist…"></textarea><div style="font-size:12px;color:var(--grn);margin-top:6px" id="notesaved">Saved ✓</div></div>
+</section>
+
+<!-- REF -->
+<section class="module" id="m-ref">
+ <h2>📚 Reference Tables</h2><div class="sub">Quick field references</div>
+ <div class="grid2">
+ <div class="card"><h3>Copper Cable Ampacity (approx.)</h3><table><tr><th>mm²</th><th>A</th><th>mm²</th><th>A</th></tr>
+  <tr><td>1.5</td><td>15</td><td>35</td><td>100</td></tr><tr><td>2.5</td><td>20</td><td>50</td><td>125</td></tr>
+  <tr><td>4</td><td>27</td><td>70</td><td>160</td></tr><tr><td>6</td><td>35</td><td>95</td><td>195</td></tr>
+  <tr><td>10</td><td>48</td><td>120</td><td>225</td></tr><tr><td>16</td><td>65</td><td>150</td><td>260</td></tr><tr><td>25</td><td>85</td><td>185</td><td>300</td></tr></table></div>
+ <div class="card"><h3>Saturated Steam (gauge)</h3><table><tr><th>bar g</th><th>Temp °C</th><th>bar g</th><th>Temp °C</th></tr>
+  <tr><td>0</td><td>100</td><td>5</td><td>159</td></tr><tr><td>1</td><td>120</td><td>8</td><td>175</td></tr>
+  <tr><td>2</td><td>134</td><td>10</td><td>184</td></tr><tr><td>3</td><td>144</td><td>15</td><td>201</td></tr></table></div>
+ <div class="card"><h3>Hydraulic Cylinder Bores</h3><table><tr><th>Bore mm</th><th>Area cm²</th><th>@210 bar</th><th>@400 bar</th></tr>
+  <tr><td>63</td><td>31.2</td><td>6.6 t</td><td>12.5 t</td></tr>
+  <tr><td>100</td><td>78.5</td><td>16.5 t</td><td>31.4 t</td></tr>
+  <tr><td>160</td><td>201</td><td>42.2 t</td><td>80.4 t</td></tr>
+  <tr><td>200</td><td>314</td><td>66.0 t</td><td>125.7 t</td></tr>
+  <tr><td>450</td><td>1590</td><td>334 t</td><td>636 t</td></tr></table></div>
+ <div class="card"><h3>MDF Press Guidelines</h3><table><tr><th>Board mm</th><th>Hold (s/mm)</th><th>Specific kg/cm²</th></tr>
+  <tr><td>6</td><td>3.5–4.5</td><td>28–32</td></tr>
+  <tr><td>9</td><td>3.0–4.0</td><td>28–35</td></tr>
+  <tr><td>18</td><td>2.5–3.5</td><td>25–30</td></tr></table>
+  <p style="font-size:12px;color:var(--mut);margin-top:6px">Platen temp MDF: 160–200 °C. Degas (breathing) steam ke liye zaroori.</p></div>
+ <div class="card"><h3>Motor FLC @400V 3-φ (approx.)</h3><table><tr><th>kW</th><th>A</th><th>kW</th><th>A</th></tr>
+  <tr><td>0.75</td><td>1.9</td><td>11</td><td>22</td></tr><tr><td>2.2</td><td>4.9</td><td>22</td><td>42</td></tr>
+  <tr><td>4</td><td>8.5</td><td>30</td><td>57</td></tr><tr><td>7.5</td><td>15</td><td>55</td><td>101</td></tr></table></div>
+ </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="module" id="m-set">
+ <h2>⚙️ Settings / About</h2><div class="sub">PWA install, data & status</div>
+ <div class="card">
+  <div class="row"><button class="btn" id="installBtn" hidden>📲 Install App</button><span style="font-size:12px;color:var(--mut)">Install option browser menu (⋮ → Install app) mein bhi hota hai.</span></div>
+  <div class="row"><button class="btn danger" id="clearBtn">🗑 Clear All Saved Data</button></div>
+  <p style="font-size:13px;color:var(--mut);margin-top:10px">Engineering Sim Suite v2.1 — offline PWA: Boiler v1/v2 (editable setpoints), Steam Tools, Transmitter 4–20mA (custom LRV/URV), Realtime TX, Valve Positioner, Electrical Panel (editable V/trip/kW), S7-style PLC, Bearing Finder (114 types), Electrical/Mechanical/Hydraulic calcs, MDF 15-Platen Hot Press (4×16 ft), Pilot Relief demo + utility tools. 100% local.</p>
+ </div>
+</section>
+</main>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+/* Router */
+document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('act'));b.classList.add('act');
+ document.querySelectorAll('section.module').forEach(s=>s.classList.remove('act'));
+ $('m-'+b.dataset.m).classList.add('act');$('nav').classList.remove('open');});
+$('hamb').onclick=()=>$('nav').classList.toggle('open');
+function net(){const o=navigator.onLine;$('netstat').textContent=o?'🌐 online':'📴 offline';$('netstat').classList.toggle('on',o);}
+addEventListener('online',net);addEventListener('offline',net);net();
+/* ================= BOILER shared ================= */
+function boilerStep(s,dt){
+ const steam=(s.valve/100)*60*(s.p>0.2?1:0);
+ const heat=s.fuel*0.018;
+ s.p=Math.min(15,Math.max(0,s.p+(heat-steam*0.03-(s.p-1)*0.06)*dt));
+ const inW=s.pump?9:0;
+ s.lvl=Math.min(100,Math.max(0,s.lvl+(inW-steam*0.16)*dt*0.9));
+ s.temp=100+s.p*11;s.out=steam;}
+function alarms(s,hp,ll){hp=hp||12;ll=ll==null?10:ll;
+ return s.p>hp?'TRIP: HIGH PRESSURE >'+hp+' bar':(s.lvl<ll?'LOW WATER LEVEL <'+ll+'%':(s.lvl>95?'HIGH LEVEL >95%':''));}
+function drawBoiler(ctx,w,h,s){
+ ctx.clearRect(0,0,w,h);const x=60,y=30,dw=w-120,dh=130;
+ ctx.fillStyle='#111827';ctx.strokeStyle='#7d8ca3';ctx.lineWidth=4;
+ ctx.fillRect(x,y,dw,dh);ctx.strokeRect(x,y,dw,dh);
+ const wh=(dh-10)*s.lvl/100;ctx.fillStyle='#1e6fd9';ctx.fillRect(x+4,y+dh-4-wh,dw-8,wh);
+ ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(x+4,y+dh-4-wh,dw-8,3);
+ if(s.pump)for(let i=0;i<6;i++){ctx.beginPath();ctx.arc(x+20+((i*53+Date.now()/50)%(dw-40)),y+dh-10-((Date.now()/12+i*30)%Math.max(10,wh)),2+Math.random()*2,0,7);ctx.fillStyle='#9ecbff';ctx.fill();}
+ if(s.burn&&!s.trip){for(let i=0;i<3;i++){const fx=x+dw/2-30+i*30,fh=25+Math.random()*18;
+  ctx.beginPath();ctx.moveTo(fx-10,y+dh+2);ctx.quadraticCurveTo(fx,y+dh+2-fh,fx+10,y+dh+2);ctx.closePath();
+  ctx.fillStyle=i===1?'#fbbf24':'#f97316';ctx.fill();}}
+ if(s.valve>0&&s.p>0.2){ctx.strokeStyle='rgba(200,220,255,.5)';for(let i=0;i<3;i++){ctx.beginPath();
+  const sx=x+40+i*(dw-80)/2,off=(Date.now()/6+i*20)%40;ctx.arc(sx,y-14-off,8+off/3,3.4,6.1);ctx.stroke();}}
+ ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';ctx.fillText('Steam drum',x+8,y+dh+16);}
+/* Boiler v1 */
+const B1={p:1,lvl:50,temp:100,out:0,valve:20,burn:false,pump:false,fuel:0,trip:false};
+function b1tick(){const dt=0.1;
+ if(!B1.trip){B1.valve=+$('b1valve').value;B1.fuel=B1.burn?100:0;boilerStep(B1,dt);}
+ $('b1p').textContent=B1.p.toFixed(1);$('b1lvl').textContent=Math.round(B1.lvl);$('b1t').textContent=Math.round(B1.temp);
+ const a=B1.trip?'TRIP: HIGH PRESSURE — burner locked. Reset karein.':alarms(B1);
+ const al=$('b1alarm');al.textContent=a;al.className='alarm '+(B1.trip?'trip':(a?'warn':''));
+ if(B1.p>12&&!B1.trip){B1.trip=true;B1.burn=false;$('b1burn').classList.remove('on');$('b1burn').textContent='OFF';}
+ drawBoiler($('b1cv').getContext('2d'),$('b1cv').width,$('b1cv').height,B1);}
+$('b1burn').onclick=e=>{if(B1.trip)return;B1.burn=!B1.burn;e.target.textContent=B1.burn?'ON':'OFF';e.target.classList.toggle('on',B1.burn);};
+$('b1pump').onclick=e=>{B1.pump=!B1.pump;e.target.textContent=B1.pump?'ON':'OFF';e.target.classList.toggle('on',B1.pump);};
+$('b1valve').oninput=e=>$('b1vv').textContent=e.target.value+'%';
+$('b1reset').onclick=()=>{Object.assign(B1,{p:1,lvl:50,temp:100,out:0,trip:false});};
+setInterval(b1tick,100);
+/* Boiler v2 */
+const B2={p:1,lvl:50,temp:100,out:0,valve:30,burn:false,pump:false,fuel:0,auto:false,iP:0,iL:0,trip:false,hist:[],lastA:''};
+function logTo(id,m){const li=document.createElement('li');li.textContent=new Date().toLocaleTimeString()+' — '+m;
+ const l=$(id);l.prepend(li);while(l.children.length>25)l.lastChild.remove();}
+function drawTrend(ctx,w,h,hist){
+ ctx.clearRect(0,0,w,h);ctx.strokeStyle='#1f2937';
+ for(let i=1;i<5;i++){ctx.beginPath();ctx.moveTo(0,h*i/5);ctx.lineTo(w,h*i/5);ctx.stroke();}
+ if(!hist.length)return;
+ ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.beginPath();
+ hist.forEach((pt,i)=>{const x=i/300*w,y=h-(pt.p/15)*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();
+ ctx.strokeStyle='#22c55e';ctx.beginPath();
+ hist.forEach((pt,i)=>{const x=i/300*w,y=h-(pt.l/100)*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();
+ ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';
+ ctx.fillText('— pressure (bar)',8,14);ctx.fillText('— level (%)',8,28);}
+function b2tick(){const dt=0.1;
+ const hp=+$('b2hp').value||12,ll=+$('b2ll').value||10;
+ if(B2.auto&&!B2.trip){
+  B2.valve=+$('b2dem').value;                       // steam demand drives valve
+  const kp=+$('b2kp').value||12,ki=+$('b2ki').value||8;
+  const sp=+$('b2sp').value,e=sp-B2.p;B2.iP=Math.max(-5,Math.min(5,B2.iP+e*dt));
+  const o=Math.max(0,Math.min(100,kp*e+ki*B2.iP));B2.fuel=o;B2.burn=o>2;
+  const spl=+$('b2spl').value,el=spl-B2.lvl;B2.iL=Math.max(-3,Math.min(3,B2.iL+el*dt));
+  B2.pump=(20*el+6*B2.iL)>5;
+ }else{B2.valve=+$('b2valve').value;B2.fuel=B2.burn?100:0;}
+ boilerStep(B2,dt);
+ $('b2p').textContent=B2.p.toFixed(1);$('b2lvl').textContent=Math.round(B2.lvl);$('b2out').textContent=Math.round(B2.out);
+ if(B2.p>hp&&!B2.trip){B2.trip=true;B2.burn=false;$('b2burn').classList.remove('on');$('b2burn').textContent='OFF';logTo('b2log','TRIP: HIGH PRESSURE '+B2.p.toFixed(1)+' bar (SP '+hp+')');}
+ const a=B1.trip?'':alarms(B2,hp,ll);
+ if(a!==B2.lastA){if(a)logTo('b2log',a);B2.lastA=a;}
+ B2.hist.push({p:B2.p,l:B2.lvl});if(B2.hist.length>300)B2.hist.shift();
+ drawTrend($('b2cv').getContext('2d'),$('b2cv').width,$('b2cv').height,B2.hist);}
+$('b2mode').onclick=e=>{B2.auto=!B2.auto;e.target.textContent=B2.auto?'AUTO (PID)':'MANUAL';e.target.classList.toggle('on',B2.auto);
+ logTo('b2log','Mode → '+(B2.auto?'AUTO':'MANUAL'));if(B2.auto){B2.iP=0;B2.iL=0;}};
+$('b2burn').onclick=e=>{if(B2.trip)return;B2.burn=!B2.burn;e.target.textContent=B2.burn?'ON':'OFF';e.target.classList.toggle('on',B2.burn);};
+$('b2pump').onclick=e=>{B2.pump=!B2.pump;e.target.textContent=B2.pump?'ON':'OFF';e.target.classList.toggle('on',B2.pump);};
+$('b2valve').oninput=e=>$('b2vv').textContent=e.target.value+'%';
+$('b2dem').oninput=e=>$('b2demv').textContent=e.target.value+'%';
+$('b2reset').onclick=()=>{Object.assign(B2,{p:1,lvl:50,temp:100,out:0,trip:false,iP:0,iL:0,hist:[],lastA:''});logTo('b2log','Simulator reset');};
+setInterval(b2tick,100);
+/* ================= STEAM ================= */
+const SAT=[[0,100,2257],[1,120,2201],[2,134,2164],[3,144,2134],[5,159,2091],[8,175,2031],[10,184,2000],[15,201,1947]];
+function satAt(p){if(p<=SAT[0][0])return SAT[0].slice(1);
+ for(let i=0;i<SAT.length-1;i++){if(p<=SAT[i+1][0]){const f=(p-SAT[i][0])/(SAT[i+1][0]-SAT[i][0]);
+  return[SAT[i][1]+f*(SAT[i+1][1]-SAT[i][1]),SAT[i][2]+f*(SAT[i+1][2]-SAT[i][2])]}}
+ return SAT[SAT.length-1].slice(1);}
+function steamCalc(){const[T,hg]=satAt(Math.max(0,+$('stp').value));
+ $('stres').style.display='block';
+ $('stres').innerHTML='T<sub>sat</sub> = <b>'+T.toFixed(0)+' °C</b> · h<sub>fg</sub> ≈ <b>'+hg.toFixed(0)+' kJ/kg</b>';}
+function bdCalc(){const s=+$('bdst').value,f=+$('bdtf').value,m=+$('bdtm').value;
+ const bd=f/Math.max(1,m-f)*s;
+ $('bdres').style.display='block';
+ $('bdres').innerHTML='Blowdown ≈ <b>'+bd.toFixed(1)+' kg/h</b> ('+(s>0?(bd/s*100).toFixed(1):0)+'% of steam)';}
+/* ================= TRANSMITTER (custom LRV/URV) ================= */
+const TXDEF={p:[0,10,'bar'],t:[0,200,'°C'],f:[0,100,'m³/h'],l:[0,2500,'mm']};
+function txDefaults(){const d=TXDEF[$('txtype').value];$('txlrv').value=d[0];$('txurv').value=d[1];$('txunit').textContent=d[2];txUpdate();}
+function txUpdate(){
+ const lrv=+$('txlrv').value,urv=+$('txurv').value,unit=$('txunit').textContent;
+ const al0=$('txalarm');
+ if(isNaN(lrv)||isNaN(urv)||urv===lrv){al0.textContent='⚠ Range invalid: URV ≠ LRV set karein';al0.className='alarm warn';
+  $('txpvo').textContent='--';$('txpvr').textContent='--';$('txma').textContent='--';$('txma2').textContent='--';$('txpct').textContent='--';return;}
+ const span=urv-lrv,frac=+$('txpv').value/1000,pv=lrv+frac*span;
+ const f=$('txfault').value;let ma,pct;
+ if(f==='open'){ma=1.2;pct=0;}else if(f==='short'){ma=24;pct=125;}
+ else{ma=4+16*frac;pct=frac*100;if(f==='sat')ma=Math.max(ma,20.8);}
+ $('txpvo').textContent=pv.toFixed(1)+' '+unit;
+ $('txma').textContent=ma.toFixed(2);$('txma2').textContent=ma.toFixed(2);
+ $('txpvr').textContent=(f==='open'||f==='short')?'--':pv.toFixed(1);
+ $('txpct').textContent=Math.round(pct);
+ if(ma<3.6){al0.textContent='⚠ FAULT: Loop current low — open circuit?';al0.className='alarm warn';}
+ else if(ma>21){al0.textContent='⚠ FAULT: Loop current high — short circuit?';al0.className='alarm warn';}
+ else al0.className='alarm';}
+$('txtype').onchange=txDefaults;
+['txpv','txfault','txlrv','txurv'].forEach(id=>$(id).oninput=txUpdate);
+txDefaults();
+/* ================= REALTIME TX ================= */
+const RTR={run:false,timer:null,pv:80,buf:[]};
+const RTTAG={t:[0,200,'°C',80],p:[0,10,'bar',4],f:[0,100,'m³/h',40]};
+function rtDraw(){
+ const c=$('rtcv'),ctx=c.getContext('2d'),w=c.width,h=c.height,r=RTTAG[$('rttag').value];
+ ctx.clearRect(0,0,w,h);ctx.strokeStyle='#1f2937';
+ for(let i=1;i<5;i++){ctx.beginPath();ctx.moveTo(0,h*i/5);ctx.lineTo(w,h*i/5);ctx.stroke();}
+ const thr=+$('rtalarm').value;
+ if(thr>r[0]&&thr<r[1]){const ty=h-(thr-r[0])/(r[1]-r[0])*h;
+  ctx.strokeStyle='#ef4444';ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(0,ty);ctx.lineTo(w,ty);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#ef4444';ctx.font='11px sans-serif';ctx.fillText('ALARM '+thr,6,ty-4);}
+ if(RTR.buf.length>1){ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.beginPath();
+  RTR.buf.forEach((v,i)=>{const x=i/300*w,y=h-(v-r[0])/(r[1]-r[0])*h;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();}
+ ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';ctx.fillText(r[1]+' '+r[2],6,14);ctx.fillText(r[0],6,h-6);}
+function rtTick(){
+ const r=RTTAG[$('rttag').value],nz=+$('rtnoise').value/100;
+ RTR.pv+=(r[3]-RTR.pv)*0.02+(Math.random()-0.5)*nz*(r[1]-r[0])*0.35;
+ RTR.pv=Math.max(r[0],Math.min(r[1],RTR.pv));
+ RTR.buf.push(RTR.pv);if(RTR.buf.length>300)RTR.buf.shift();
+ const ma=4+16*(RTR.pv-r[0])/(r[1]-r[0]);
+ $('rtpv').textContent=RTR.pv.toFixed(1)+' '+r[2];$('rtma').textContent=ma.toFixed(2)+' mA';
+ const mn=Math.min(...RTR.buf),mx=Math.max(...RTR.buf),av=RTR.buf.reduce((a,b)=>a+b,0)/RTR.buf.length;
+ $('rtst').textContent=mn.toFixed(1)+' / '+mx.toFixed(1)+' / '+av.toFixed(1);
+ $('rtpv').style.color=RTR.pv>+$('rtalarm').value?'var(--red)':'var(--tx)';
+ rtDraw();}
+function rtStop(){RTR.run=false;clearInterval(RTR.timer);$('rtstart').textContent='▶ Start';$('rtstart').classList.remove('on');}
+$('rtstart').onclick=()=>{if(RTR.run)return rtStop();RTR.run=true;RTR.buf=[];
+ const r=RTTAG[$('rttag').value];RTR.pv=r[3];
+ $('rtstart').textContent='⏸ Stop';$('rtstart').classList.add('on');
+ RTR.timer=setInterval(rtTick,+$('rtrate').value);rtTick();};
+$('rtrate').oninput=e=>{$('rtratev').textContent=e.target.value+' ms';if(RTR.run){clearInterval(RTR.timer);RTR.timer=setInterval(rtTick,+e.target.value);}};
+$('rtnoise').oninput=e=>$('rtnoisev').textContent=e.target.value+'%';
+$('rttag').onchange=()=>{if(RTR.run){RTR.pv=RTTAG[$('rttag').value][3];RTR.buf=[];}};
+/* ================= POSITIONER ================= */
+const PV={stem:50,dir:0,air:true};
+function pvTick(){
+ const cmd=+$('pvcmd').value,db=+$('pvdb').value,st=+$('pvst').value;
+ PV.air=$('pvair').classList.contains('on');
+ let target=(cmd-4)/16*100;
+ if(PV.air){const err=target-PV.stem;
+  if(Math.abs(err)>db){const d=err>0?1:-1;
+   if(d!==PV.dir)PV.stem+=d*st;
+   PV.dir=d;
+   PV.stem=Math.max(0,Math.min(100,PV.stem+d*Math.min(1.5,Math.abs(err))));}}
+ const flow=$('pvchar').value==='eq'?Math.pow(30,PV.stem/100-1)*100:PV.stem;
+ $('pvma').textContent=cmd.toFixed(2);$('pvstem').textContent=PV.stem.toFixed(0);$('pvflow').textContent=flow.toFixed(0);
+ const al=$('pvalarm');
+ if(!PV.air){al.textContent='⚠ AIR SUPPLY FAIL — positioner hold (fail-in-place)';al.className='alarm warn';}
+ else if(+$('pvst').value>=6){al.textContent='⚠ High stiction — valve likely to oscillate / limit cycle';al.className='alarm warn';}
+ else al.className='alarm';
+ const c=$('pvcv'),ctx=c.getContext('2d'),w=c.width,h=c.height;
+ ctx.clearRect(0,0,w,h);
+ ctx.strokeStyle='#556';ctx.lineWidth=3;
+ ctx.fillStyle='#1c2330';ctx.fillRect(150,20,120,70);ctx.strokeRect(150,20,120,70);
+ ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';ctx.fillText('Pneumatic actuator',158,38);
+ ctx.beginPath();ctx.moveTo(170,90);ctx.lineTo(210,150);ctx.moveTo(250,90);ctx.lineTo(210,150);ctx.stroke();
+ const sy=150+PV.stem*0.55;
+ ctx.strokeStyle=PV.air?'#38bdf8':'#ef4444';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(210,90);ctx.lineTo(210,sy);ctx.stroke();
+ ctx.fillStyle='#111827';ctx.strokeStyle='#7d8ca3';ctx.lineWidth=3;
+ ctx.fillRect(150,sy,120,60);ctx.strokeRect(150,sy,120,60);
+ ctx.fillStyle='#1e6fd9';ctx.fillRect(150,sy+40,120,20);
+ ctx.fillStyle='#f97316';ctx.beginPath();ctx.moveTo(200,sy+18);ctx.lineTo(220,sy+18);ctx.lineTo(214,sy+34);ctx.lineTo(206,sy+34);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#8b949e';ctx.fillText('Stem '+PV.stem.toFixed(0)+'%  ·  Flow '+flow.toFixed(0)+'%',14,h-12);}
+setInterval(pvTick,100);
+$('pvdb').oninput=e=>$('pvdbv').textContent=e.target.value+'%';
+$('pvst').oninput=e=>$('pvstv').textContent=e.target.value+'%';
+$('pvair').onclick=e=>{e.target.classList.toggle('on');e.target.textContent=e.target.classList.contains('on')?'OK':'FAIL';};
+/* ================= PANEL ================= */
+const PNLCFG={tripped:false,feeders:[
+ {name:'P-101 Feed Pump',kw:30,type:'motor',mcb:true,run:false},
+ {name:'F-102 ID Fan',kw:15,type:'motor',mcb:true,run:false},
+ {name:'H-103 Heater Bank',kw:20,type:'heat',mcb:true,run:false},
+ {name:'L-104 Lighting',kw:5,type:'misc',mcb:true,run:true}]};
+function pnlRender(){
+ const host=$('pnlrows');host.innerHTML='';
+ PNLCFG.feeders.forEach((f,i)=>{
+  const V=+$('pnlvolt').value||400;
+  const I=f.mcb&&f.run&&!PNLCFG.tripped?f.kw*1000/(1.732*V*(f.type==='motor'?0.85:1)):0;
+  const d=document.createElement('div');d.className='tr-row';
+  d.innerHTML='<span>'+(f.run&&f.mcb?'🟢':'⚪')+' <b>'+f.name+'</b></span>'
+   +'<input type="number" value="'+f.kw+'" data-kw="'+i+'" style="width:70px" title="kW">'
+   +'<span style="display:flex;gap:6px"><button class="btn '+(f.mcb?'on':'')+'" data-a="mcb" data-i="'+i+'">MCB '+(f.mcb?'ON':'OFF')+'</button>'
+   +'<button class="btn '+(f.run?'on':'')+'" data-a="run" data-i="'+i+'">'+(f.type==='motor'?'START':'ON')+'</button></span>'
+   +'<span class="amp">'+I.toFixed(1)+' A</span>';
+  host.appendChild(d);});
+ host.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  const f=PNLCFG.feeders[+b.dataset.i];
+  if(b.dataset.a==='mcb'){f.mcb=!f.mcb;if(!f.mcb)f.run=false;}
+  else{if(f.mcb&&!PNLCFG.tripped)f.run=!f.run;}
+  pnlRender();});}
+function pnlCalc(){
+ const V=+$('pnlvolt').value||400,tripPct=(+$('pnltripset').value||105)/100;
+ let kw=0,amp=0;
+ PNLCFG.feeders.forEach(f=>{if(f.mcb&&f.run&&!PNLCFG.tripped){kw+=f.kw;amp+=f.kw*1000/(1.732*V*(f.type==='motor'?0.85:1));}});
+ const rt=+$('pnlrating').value,thr=rt*tripPct;
+ if(!PNLCFG.tripped&&amp>thr){PNLCFG.tripped=true;
+  PNLCFG.feeders.forEach(f=>f.run=false);pnlRender();}
+ $('pnla').textContent=amp.toFixed(0);$('pnlkw').textContent=kw.toFixed(0);
+ $('pnlpc').textContent=Math.min(999,(amp/rt*100)).toFixed(0)+'%';
+ $('pnldemand').style.width=Math.min(100,amp/rt*100)+'%';
+ $('pnldemand').style.background=amp/rt>0.9?'var(--red)':(amp/rt>0.75?'var(--ylw)':'var(--grn)');
+ const t=$('pnltrip');
+ t.textContent=PNLCFG.tripped?'⛔ INCOMER TRIPPED':'INCOMER CLOSED';
+ t.style.borderColor=t.style.color=PNLCFG.tripped?'var(--red)':'var(--grn)';
+ const al=$('pnlalarm');
+ if(PNLCFG.tripped){al.textContent='OVERLOAD TRIP: '+amp.toFixed(0)+' A > '+thr.toFixed(0)+' A ('+tripPct*100+'% of '+rt+' A) — loads kam karein phir reset';al.className='alarm trip';}
+ else if(amp/rt>0.9){al.textContent='⚠ Demand >90% — overload risk';al.className='alarm warn';}
+ else al.className='alarm';}
+['pnlrating','pnlvolt','pnltripset'].forEach(id=>$(id).oninput=()=>{PNLCFG.tripped=false;pnlRender();pnlCalc();});
+$('pnlrows').oninput=e=>{const i=e.target.dataset.kw;
+ if(i!==undefined){PNLCFG.feeders[+i].kw=Math.max(0,+e.target.value||0);pnlCalc();}};
+$('pnlreset').onclick=()=>{PNLCFG.tripped=false;pnlRender();pnlCalc();};
+pnlRender();setInterval(pnlCalc,300);
+/* ================= PLC ================= */
+const PLC={I:{'I0.0':0,'I0.1':0,'I0.2':0},Q:{'Q0.0':0,'Q0.1':0,'Q0.2':0},T:{t:0,pt:3,done:0},prev:0};
+function plcScan(){const dt=0.1;
+ PLC.I['I0.2']=$('plcsw').checked?1:0;
+ const stopN=!PLC.I['I0.1'];
+ const q0=((PLC.I['I0.0']||PLC.prev)&&stopN)?1:0;
+ PLC.prev=q0;PLC.Q['Q0.0']=q0;
+ if(q0){PLC.T.t=Math.min(PLC.T.pt,PLC.T.t+dt);PLC.T.done=PLC.T.t>=PLC.T.pt?1:0;}
+ else{PLC.T.t=0;PLC.T.done=0;}
+ PLC.Q['Q0.1']=PLC.T.done;PLC.Q['Q0.2']=PLC.I['I0.2'];
+ plcDraw();}
+function plcContact(ctx,x,y,label,act,nc,bw){
+ bw=bw||46;
+ ctx.strokeStyle=act?'#22c55e':'#3a4657';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+bw,y);ctx.stroke();
+ ctx.strokeStyle=act?'#22c55e':'#8b949e';
+ ctx.beginPath();ctx.moveTo(x+4,y-10);ctx.lineTo(x+4,y+10);ctx.moveTo(x+bw-4,y-10);ctx.lineTo(x+bw-4,y+10);ctx.stroke();
+ if(nc){ctx.beginPath();ctx.moveTo(x,y+10);ctx.lineTo(x+bw,y-10);ctx.stroke();}
+ ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';ctx.fillText(label,x,y+24);
+ return x+bw;}
+function plcCoil(ctx,y,label,act,gr){
+ ctx.strokeStyle=act?'#22c55e':'#3a4657';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(gr-44,y);ctx.lineTo(gr,y);ctx.stroke();
+ ctx.strokeStyle=act?'#22c55e':'#8b949e';
+ ctx.beginPath();ctx.arc(gr-30,y,12,0,7);ctx.stroke();
+ if(act){ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(gr-30,y,5,0,7);ctx.fill();}
+ ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';ctx.fillText(label,gr-58,y+26);}
+function plcDraw(){
+ const c=$('plccv'),ctx=c.getContext('2d'),w=c.width,h=c.height,gx=25,gr=w-25;
+ ctx.clearRect(0,0,w,h);
+ ctx.strokeStyle='#556';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(gx,18);ctx.lineTo(gx,h-12);ctx.moveTo(gr,18);ctx.lineTo(gr,h-12);ctx.stroke();
+ const on=PLC.Q['Q0.0'],tOn=PLC.T.done,stopN=!PLC.I['I0.1'];
+ const W=(x1,y1,x2,y2,act)=>{ctx.strokeStyle=act?'#22c55e':'#3a4657';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();};
+ let y=45;W(gx,y,80,y,true);
+ let x=plcContact(ctx,80,y,'I0.0 (START)',PLC.I['I0.0']);
+ const nx=x;
+ W(nx,y,nx+50,y,on);W(nx,y,nx,y+28,on);
+ let x2=plcContact(ctx,nx,y+28,'Q0.0 (seal)',on,false);
+ W(nx+50,y+28,x2,y+28,on);W(x2,y+28,x2,y,on);
+ x=plcContact(ctx,nx+50,y,'I0.1 (STOP)',stopN,true);
+ plcCoil(ctx,y,'Q0.0',on,gr);
+ y=112;W(gx,y,80,y,on);
+ x=plcContact(ctx,80,y,'Q0.0',on);
+ W(x,y,x+20,y,on);
+ ctx.strokeStyle=on?'#22c55e':'#8b949e';ctx.strokeRect(x+20,y-16,110,32);
+ ctx.fillStyle=on?'#9ecbff':'#8b949e';ctx.font='10px sans-serif';
+ ctx.fillText('TON T1',x+28,y-4);ctx.fillText(PLC.T.t.toFixed(1)+'/'+PLC.T.pt+'s',x+28,y+10);
+ W(x+130,y,x+150,y,on);
+ x=plcContact(ctx,x+150,y,'T1 (done)',tOn,false,30);
+ plcCoil(ctx,y,'Q0.1',tOn,gr);
+ y=180;W(gx,y,80,y,PLC.I['I0.2']);
+ x=plcContact(ctx,80,y,'I0.2 (LVL OK)',PLC.I['I0.2'],false,70);
+ plcCoil(ctx,y,'Q0.2',PLC.Q['Q0.2'],gr);
+ ctx.fillStyle='#556';ctx.font='10px sans-serif';
+ ctx.fillText('L1',gx-14,22);ctx.fillText('N',gr-6,22);}
+$('plcstart').onpointerdown=()=>PLC.I['I0.0']=1;$('plcstart').onpointerup=$('plcstart').onpointerleave=()=>PLC.I['I0.0']=0;
+$('plcstop').onpointerdown=()=>PLC.I['I0.1']=1;$('plcstop').onpointerup=$('plcstop').onpointerleave=()=>PLC.I['I0.1']=0;
+$('plcreset').onclick=()=>{PLC.T.t=0;PLC.prev=0;PLC.Q['Q0.0']=0;};
+setInterval(plcScan,100);plcDraw();
+/* ================= ELEC CALCS ================= */
+const AMP=[[1.5,15],[2.5,20],[4,27],[6,35],[10,48],[16,65],[25,85],[35,100],[50,125],[70,160],[95,195],[120,225],[150,260],[185,300],[240,355]];
+function eCalc(){const P=+$('ep').value,V=+$('ev').value,pf=+$('epf').value||0.8,ph=$('eph').value;
+ const I=ph==='3'?P*1000/(1.732*V*pf):P*1000/(V*pf);
+ $('eres').style.display='block';$('eres').innerHTML='Line Current I = <b>'+I.toFixed(1)+' A</b>';}
+function vdCalc(){const I=+$('vdcur').value,L=+$('vdlen').value,ph=$('vdph').value;
+ const rho=$('vdmat').value==='cu'?0.0175:0.028;
+ const c=AMP.find(a=>a[1]>=I*1.25);
+ const sz=c?c[0]:'240+';
+ const Vb=ph==='3'?400:230;
+ const VD=ph==='3'?1.732*I*L*rho/c[1]:2*I*L*rho/c[1];
+ const pct=VD/Vb*100;
+ $('vdres').style.display='block';
+ $('vdres').innerHTML='Suggested cable: <b>'+sz+' mm²</b><br>VD = '+VD.toFixed(2)+' V (<b>'+pct.toFixed(2)+'%</b>) '+(pct<=3?'✓ OK (≤3%)':'⚠ HIGH (>3%) — size bara karein');}
+function pfCalc(){const P=+$('pfp').value,p1=+$('pf1').value,p2=+$('pf2').value;
+ const kvar=P*(Math.tan(Math.acos(p1))-Math.tan(Math.acos(p2)));
+ $('pfres').style.display='block';$('pfres').innerHTML='Required capacitor = <b>'+kvar.toFixed(1)+' kVAr</b>';}
+function sdCalc(){const I=+$('sdcur').value;
+ $('sdres').style.display='block';
+ $('sdres').innerHTML='DOL start ≈ <b>'+(6*I).toFixed(0)+' A</b> (6×)<br>Star-Delta start ≈ <b>'+(2*I).toFixed(0)+' A</b> (2×)<br>Star run = Delta ÷ √3 = <b>'+(I/1.732).toFixed(1)+' A</b>';}
+/* ================= BEARING FINDER ================= */
+const BRG=[
+['6200','DG',10,30,10],['6201','DG',12,32,10],['6202','DG',15,35,11],['6203','DG',17,40,12],['6204','DG',20,47,14],['6205','DG',25,52,15],['6206','DG',30,62,16],['6207','DG',35,72,17],['6208','DG',40,80,18],['6209','DG',45,85,19],['6210','DG',50,90,20],['6211','DG',55,100,21],['6212','DG',60,110,22],
+['6300','DG',10,35,11],['6301','DG',12,37,12],['6302','DG',15,42,13],['6303','DG',17,47,14],['6304','DG',20,52,15],['6305','DG',25,62,17],['6306','DG',30,72,19],['6307','DG',35,80,21],['6308','DG',40,90,23],['6309','DG',45,100,25],['6310','DG',50,110,27],['6311','DG',55,120,29],['6312','DG',60,130,31],
+['6004','DG',20,42,12],['6005','DG',25,47,12],['6006','DG',30,55,13],['6007','DG',35,62,14],['6008','DG',40,68,15],['6009','DG',45,75,16],['6010','DG',50,80,16],['6011','DG',55,90,18],['6012','DG',60,95,18],
+['7205','AC',25,52,15],['7206','AC',30,62,16],['7207','AC',35,72,17],['7208','AC',40,80,18],['7209','AC',45,85,19],['7210','AC',50,90,20],['7211','AC',55,100,21],['7212','AC',60,110,22],
+['7306','AC',30,72,19],['7307','AC',35,80,21],['7308','AC',40,90,23],
+['2205','SA',25,52,18],['2206','SA',30,62,20],['2207','SA',35,72,23],['2208','SA',40,80,23],['2209','SA',45,85,23],['2210','SA',50,90,23],
+['51106','TH',30,47,11],['51107','TH',35,52,12],['51108','TH',40,60,13],['51109','TH',45,65,14],['51110','TH',50,70,14],
+['51206','TH',30,52,16],['51208','TH',40,68,19],['51210','TH',50,78,22],
+['NU205','CR',25,52,15],['NU206','CR',30,62,16],['NU207','CR',35,72,17],['NU208','CR',40,80,18],['NU209','CR',45,85,19],['NU210','CR',50,90,20],['NU211','CR',55,100,21],['NU212','CR',60,110,22],
+['NU305','CR',25,62,17],['NU306','CR',30,72,19],['NU307','CR',35,80,21],['NU308','CR',40,90,23],
+['22205','SR',25,52,18],['22206','SR',30,62,20],['22207','SR',35,72,23],['22208','SR',40,80,23],['22209','SR',45,85,23],['22210','SR',50,90,23],['22211','SR',55,100,25],['22212','SR',60,110,28],['22213','SR',65,120,31],['22214','SR',70,125,31],['22215','SR',75,130,31],['22216','SR',80,140,33],['22217','SR',85,150,36],['22218','SR',90,160,40],
+['22308','SR',40,90,33],['22309','SR',45,100,36],['22310','SR',50,110,40],['22311','SR',55,120,43],['22312','SR',60,130,46],['22313','SR',65,140,48],['22314','SR',70,150,51],['22315','SR',75,160,55],
+['30204','TA',20,47,15.25],['30205','TA',25,52,16.25],['30206','TA',30,62,17.25],['30207','TA',35,72,18.25],['30208','TA',40,80,19.75],['30209','TA',45,85,20.75],['30210','TA',50,90,21.75],['30211','TA',55,100,22.75],['30212','TA',60,110,23.75],
+['30306','TA',30,72,20.75],['30307','TA',35,80,22.75],['30308','TA',40,90,25.25],['30309','TA',45,100,27.25],['30310','TA',50,110,29.25],
+['HK1010','ND',10,14,10],['HK1212','ND',12,16,12],['HK1516','ND',15,21,16],['HK1612','ND',16,22,12],['HK2016','ND',20,26,16],['HK2520','ND',25,32,20]];
+const BTYP={DG:'Deep Groove Ball',AC:'Angular Contact',SA:'Self-Align Ball',TH:'Thrust Ball',CR:'Cylindrical Roller',SR:'Spherical Roller',TA:'Taper Roller',ND:'Needle'};
+function brgTable(rows){
+ const w=$('btablewrap');
+ if(!rows.length){w.innerHTML='<p style="color:var(--mut);font-size:13px;padding:8px">Koi bearing nahi mili — number/size check karein.</p>';$('bres').style.display='none';return;}
+ let html='<table><tr><th>Bearing No</th><th>Type</th><th>d (bore) mm</th><th>D (OD) mm</th><th>B (W) mm</th></tr>';
+ rows.slice(0,60).forEach(r=>{html+='<tr><td><b>'+r[0]+'</b></td><td>'+BTYP[r[1]]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>';});
+ html+='</table>'+(rows.length>60?'<p style="font-size:12px;color:var(--mut)">Aur '+(rows.length-60)+' results…</p>':'');
+ w.innerHTML=html;
+ $('bres').style.display='block';
+ $('bres').innerHTML='<b>'+rows.length+'</b> result(s) found';}
+function brgByNum(){
+ const q=$('bnum').value.trim().toUpperCase();
+ if(!q)return brgTable([]);
+ brgTable(BRG.filter(r=>r[0].includes(q)));}
+function brgBySize(){
+ const d=+$('bbore').value,t=$('btype').value;
+ if(!d){$('bres').style.display='block';$('bres').innerHTML='Shaft Ø (mm) likhein — saare bearings us bore ke';return;}
+ let rows=BRG.filter(r=>r[2]===d);
+ if(t)rows=rows.filter(r=>r[1]===t);
+ brgTable(rows);}
+$('bnum').onkeydown=e=>{if(e.key==='Enter')brgByNum();};
+$('bbore').onkeydown=e=>{if(e.key==='Enter')brgBySize();};
+$('btype').onchange=brgBySize;
+/* ================= MECH CALCS ================= */
+function pumpCalc(){const q=+$('mq').value,hh=+$('mh').value,eff=+$('meff').value||0.7;
+ const kw=2.725*q*hh/1000/eff;
+ $('mres').style.display='block';
+ $('mres').innerHTML='Hydraulic power = <b>'+kw.toFixed(2)+' kW</b><br>Suggested motor (25% margin) ≈ <b>'+(kw*1.25).toFixed(1)+' kW</b>';}
+function pipeCalc(){const q=+$('pq').value,d=(+$('pd').value)/1000,L=+$('pl').value;
+ const v=(q/3600)/(Math.PI*d*d/4),f=0.02,dp=f*(L/d)*(1000*v*v/2)/1e5;
+ $('pres').style.display='block';
+ $('pres').innerHTML='Velocity = <b>'+v.toFixed(2)+' m/s</b> '+(v<2.5?'✓':'⚠ high')+'<br>ΔP (f=0.02) = <b>'+dp.toFixed(3)+' bar</b>';}
+function cvCalc(){const q=+$('cvq').value,dp=Math.max(0.01,+$('cvdp').value),sg=+$('cvsg').value||1;
+ const cv=(q*4.4029)/Math.sqrt(dp*14.5038/sg);
+ $('cvres').style.display='block';
+ $('cvres').innerHTML='Required Cv = <b>'+cv.toFixed(1)+'</b> → next standard size up';}
+function boltCalc(){const F=+$('btf').value,d=+$('btd').value;
+ $('btres').style.display='block';
+ $('btres').innerHTML='Torque (K=0.2) ≈ <b>'+(0.2*F*d).toFixed(1)+' Nm</b>';}
+/* ================= MDF HOT PRESS ================= */
+const PRS={pump:false,auto:false,estop:false,phase:'IDLE',cycleT:0,pos:400,line:0,plat:25,core:25,holdLeft:0,degActive:0,degDone:0,cycles:0};
+const FACE_CM2=1219*4877/100, CYL_CM2=1590.4;
+function prsForce(){return PRS.line*1.0197*CYL_CM2*(+$('hpncyl').value);}   // kgf
+function prsTick(){const dt=0.1;
+ const tsp=+$('hptsp').value||180, sp=+$('hpset').value||160,
+       hold=+$('hphold').value||24, degN=+$('hpdeg').value||0, bt=Math.max(3,+$('hpbt').value||9);
+ PRS.plat+=(tsp-PRS.plat)*0.02*dt;
+ if(PRS.estop){PRS.phase='IDLE';PRS.line=0;PRS.pump=false;$('hppump').textContent='OFF';$('hppump').classList.remove('on');}
+ if(!PRS.pump&&PRS.phase!=='IDLE'){PRS.line=Math.max(0,PRS.line-100*dt);if(PRS.line<=0)PRS.phase='IDLE';}
+ switch(PRS.phase){
+  case 'IDLE':
+   PRS.pos=Math.min(400,PRS.pos+80*dt);PRS.line=Math.max(0,PRS.line-100*dt);
+   if(PRS.auto&&PRS.pump&&!PRS.estop){PRS.phase='CLOSE';PRS.cycleT=0;PRS.core=25;}
+   break;
+  case 'CLOSE':{
+   PRS.cycleT+=dt;
+   const rate=PRS.pos>bt+60?80:8;                 // fast approach then slow touch
+   PRS.pos-=rate*dt;
+   if(PRS.pos<=bt){PRS.pos=bt;PRS.phase='PRESS';}
+   break;}
+  case 'PRESS':
+   PRS.cycleT+=dt;PRS.line=Math.min(sp,PRS.line+60*dt);
+   PRS.core+=(PRS.plat-PRS.core)*0.03*dt;
+   if(PRS.line>=sp){PRS.phase='HOLD';PRS.holdLeft=hold;PRS.degDone=0;PRS.degActive=0;}
+   break;
+  case 'HOLD':{
+   PRS.cycleT+=dt;PRS.holdLeft-=dt;
+   PRS.core+=(PRS.plat-PRS.core)*0.03*dt;
+   const seg=hold/(degN+1);
+   if(degN>0&&PRS.degDone<degN&&PRS.degActive<=0&&(hold-PRS.holdLeft)>=seg*(PRS.degDone+1)){PRS.degActive=2;PRS.degDone++;}
+   if(PRS.degActive>0){PRS.degActive-=dt;PRS.line=Math.max(sp*0.35,PRS.line-90*dt);}
+   else PRS.line=Math.min(sp,PRS.line+90*dt);
+   if(PRS.holdLeft<=0)PRS.phase='OPEN';
+   break;}
+  case 'OPEN':
+   PRS.cycleT+=dt;PRS.line=Math.max(0,PRS.line-150*dt);PRS.pos+=70*dt;
+   if(PRS.pos>=400){PRS.pos=400;PRS.cycles++;$('hpcyc').textContent=PRS.cycles;PRS.phase='IDLE';}
+   break;}
+ /* displays */
+ const F=prsForce(),spec=F/FACE_CM2;
+ $('hpp').textContent=PRS.line.toFixed(0);
+ $('hpt').textContent=PRS.plat.toFixed(0);
+ $('hpc').textContent=PRS.core.toFixed(0);
+ $('hpf').textContent=(F/1000).toFixed(0);
+ $('hpsp2').textContent=spec.toFixed(0);
+ $('hppos').textContent=PRS.pos.toFixed(0);
+ $('hpmode').textContent=PRS.estop?'E-STOP':PRS.phase+(PRS.phase==='HOLD'?' '+PRS.holdLeft.toFixed(1)+'s':'');
+ $('hptime').textContent=PRS.cycleT.toFixed(1)+' s';
+ $('hpsetv').textContent=sp+' bar';
+ const al=$('hpalarm');
+ if(PRS.estop){al.textContent='⛔ E-STOP ACTIVE — Reset dabayein';al.className='alarm trip';}
+ else if(PRS.degActive>0){al.textContent='💨 DEGAS (breathing) '+PRS.degActive.toFixed(1)+' s — steam release';al.className='alarm warn';}
+ else if(Math.abs(PRS.plat-tsp)>8&&PRS.plat<tsp){al.textContent='🔥 Platens heating up: '+PRS.plat.toFixed(0)+'°C → SP '+tsp+'°C';al.className='alarm warn';}
+ else al.className='alarm';
+ prsDraw(bt);}
+function prsDraw(bt){
+ const c=$('hpcv'),ctx=c.getContext('2d'),w=c.width,h=c.height;
+ ctx.clearRect(0,0,w,h);
+ const x0=w/2-150,x1=w/2+150,pl=9,y0=26;
+ const gapPx=1.5+(PRS.pos/400)*7.2;
+ const compressed=PRS.pos<=bt*1.6;
+ // cylinders
+ const n=+$('hpncyl').value;
+ ctx.fillStyle='#334155';ctx.fillRect(x0,8,x1-x0,14);
+ for(let i=0;i<n;i++){ctx.fillStyle='#0f2a4a';ctx.strokeStyle='#7d8ca3';
+  const cx=x0+14+i*((x1-x0-28)/(n-1||1));
+  ctx.fillRect(cx-8,14,16,12);ctx.strokeRect(cx-8,14,16,12);}
+ // platens stack
+ let y=y0;
+ for(let i=0;i<15;i++){
+  const heat=Math.max(0,Math.min(1,(PRS.plat-25)/195));
+  ctx.fillStyle='rgb('+Math.round(40+heat*180)+','+Math.round(70-heat*10)+','+Math.round(90-heat*40)+')';
+  ctx.fillRect(x0,y,300,pl);
+  ctx.strokeStyle='#556';ctx.strokeRect(x0,y,300,pl);
+  y+=pl;
+  if(i<14){
+   if(compressed){ctx.fillStyle='#7c4a1e';ctx.fillRect(x0+6,y,288,Math.min(3,gapPx-1.5));}
+   y+=gapPx;}}
+ // frame columns
+ ctx.strokeStyle='#475569';ctx.lineWidth=10;
+ ctx.beginPath();ctx.moveTo(x0-20,8);ctx.lineTo(x0-20,y+6);ctx.moveTo(x1+20,8);ctx.lineTo(x1+20,y+6);ctx.stroke();
+ // pressure pipe + gauge
+ ctx.strokeStyle='#38bdf8';ctx.lineWidth=2.5;
+ ctx.beginPath();ctx.moveTo(x1+20,60);ctx.lineTo(w-40,60);ctx.lineTo(w-40,h-40);ctx.stroke();
+ ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';
+ ctx.fillText('PT-201: '+PRS.line.toFixed(0)+' bar',x1+26,52);
+ ctx.fillText('TT-202: '+PRS.plat.toFixed(0)+'°C',20,20);
+ ctx.fillText('TT-203 core: '+PRS.core.toFixed(0)+'°C',20,34);
+ ctx.fillStyle='#e6edf3';ctx.font='bold 13px sans-serif';
+ ctx.fillText(PRS.estop?'⛔ E-STOP':PRS.phase,20,h-14);
+ ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';
+ ctx.fillText('15 platens · 14 openings · 4ft×16ft',x0,h-14);}
+$('hppump').onclick=e=>{if(PRS.estop)return;PRS.pump=!PRS.pump;e.target.textContent=PRS.pump?'ON':'OFF';e.target.classList.toggle('on',PRS.pump);};
+$('hpauto').onclick=e=>{PRS.auto=!PRS.auto;e.target.classList.toggle('on',PRS.auto);
+ if(PRS.auto&&!PRS.pump&&!PRS.estop){PRS.pump=true;$('hppump').textContent='ON';$('hppump').classList.add('on');}};
+$('hpest').onclick=()=>{PRS.estop=true;PRS.auto=false;$('hpauto').classList.remove('on');};
+$('hpreset').onclick=()=>{PRS.estop=false;PRS.phase='IDLE';PRS.pos=400;PRS.line=0;PRS.core=25;PRS.cycleT=0;};
+$('hpset').oninput=()=>$('hpsetv').textContent=$('hpset').value+' bar';
+setInterval(prsTick,100);
+/* ================= PILOT RELIEF ================= */
+const PR={pump:false,pp:0,open:false};
+function prTick(){const dt=0.1;
+ const set=+$('prset').value;
+ if(PR.pump)PR.pp=Math.min(400,PR.pp+40*dt);else PR.pp=Math.max(0,PR.pp-30*dt);
+ PR.open=PR.pp>set;
+ if(PR.open)PR.pp=Math.max(set,PR.pp-15*dt)+(Math.random()*3);
+ $('prpp').textContent=PR.pp.toFixed(0);$('prsetv').textContent=set;
+ const c=$('prcv'),ctx=c.getContext('2d'),w=c.width,h=c.height,y=150;
+ ctx.clearRect(0,0,w,h);
+ ctx.strokeStyle='#8b949e';ctx.lineWidth=3;
+ ctx.beginPath();ctx.arc(70,y,26,0,7);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(58,y-12);ctx.lineTo(82,y);ctx.lineTo(58,y+12);ctx.closePath();ctx.stroke();
+ ctx.fillStyle=PR.pump?'#22c55e':'#8b949e';ctx.font='11px sans-serif';ctx.fillText('PUMP '+(PR.pump?'ON':'OFF'),40,y+44);
+ ctx.strokeStyle=PR.pump?'#38bdf8':'#556';ctx.lineWidth=4;
+ ctx.beginPath();ctx.moveTo(96,y);ctx.lineTo(300,y);ctx.stroke();
+ ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';ctx.fillText(PR.pp.toFixed(0)+' bar',190,y-10);
+ ctx.fillStyle='#1c2330';ctx.strokeStyle='#7d8ca3';
+ ctx.fillRect(300,y-55,110,110);ctx.strokeRect(300,y-55,110,110);
+ const lift=PR.open?Math.min(28,(PR.pp-set)*0.5+14):0;
+ ctx.fillStyle=PR.open?'#f97316':'#64748b';
+ ctx.fillRect(320,y-6-lift,70,18);ctx.strokeRect(320,y-6-lift,70,18);
+ ctx.fillStyle='#8b949e';ctx.fillText('MAIN SPOOL',312,y-64);
+ ctx.fillText('orifice Ø1mm',318,y+70);
+ ctx.strokeStyle=PR.pump?'#38bdf8':'#556';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(355,y-6);ctx.lineTo(355,y-95);ctx.lineTo(470,y-95);ctx.stroke();
+ ctx.fillStyle=PR.open?'#ef4444':'#1c2330';ctx.strokeStyle=PR.open?'#ef4444':'#7d8ca3';
+ ctx.beginPath();ctx.moveTo(455,y-115);ctx.lineTo(485,y-115);ctx.lineTo(470,y-100-lift*0.3);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#8b949e';ctx.lineWidth=2;ctx.beginPath();
+ ctx.moveTo(470,y-100-lift*0.3);ctx.lineTo(470,y-150);ctx.stroke();
+ for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(462,y-140-i*8);ctx.lineTo(478,y-134-i*8);ctx.stroke();}
+ ctx.fillStyle='#8b949e';ctx.fillText('PILOT · set '+set+' bar',410,y-160);
+ ctx.strokeStyle=PR.open?'#38bdf8':'#556';ctx.lineWidth=4;
+ ctx.beginPath();ctx.moveTo(410,y+55-lift);ctx.lineTo(410,y+110);ctx.lineTo(760,y+110);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(485,y-95-lift*0.2);ctx.lineTo(760,y-95-lift*0.2);ctx.stroke();
+ if(PR.open){for(let i=0;i<5;i++){ctx.beginPath();
+  ctx.arc(430+((Date.now()/6+i*25)%300),y+110-((Date.now()/3+i*20)%24),3,0,7);ctx.fillStyle='#38bdf8';ctx.fill();}}
+ ctx.fillStyle='#8b949e';ctx.fillText('TANK',700,y+130);
+ ctx.fillStyle=PR.open?'#fca5a5':'#8b949e';ctx.font='bold 13px sans-serif';
+ ctx.fillText(PR.open?'STATE: PILOT OPEN → MAIN SPOOL DUMPING':'STATE: PILOT CLOSED — no flow to tank',20,h-12);}
+$('prpump').onclick=e=>{PR.pump=!PR.pump;e.target.textContent=PR.pump?'ON':'OFF';e.target.classList.toggle('on',PR.pump);};
+setInterval(prTick,100);
+/* ================= HYD CALCS ================= */
+function hyForce(){const P=+$('hyP').value,D=+$('hyD').value;
+ const A=Math.PI*Math.pow(D/2000,2),kN=P*100*A,t=kN/9.81;
+ $('hyFres').style.display='block';
+ $('hyFres').innerHTML='Force = <b>'+kN.toFixed(0)+' kN</b> = <b>'+t.toFixed(1)+' ton</b>';}
+function hyPump(){const P=+$('hyPP').value,Q=+$('hyQ').value,eff=+$('hyEff').value||0.9;
+ const kW=P*Q/600/eff;
+ $('hyPres').style.display='block';
+ $('hyPres').innerHTML='Shaft power = <b>'+kW.toFixed(1)+' kW</b> → motor ≈ <b>'+(kW*1.15).toFixed(1)+' kW</b>';}
+function hyPipe(){const Q=+$('hyfq').value,d=(+$('hyfid').value)/1000,L=+$('hyfl').value;
+ const v=Q/60000/(Math.PI*d*d/4),rho=870,nu=46e-6,mu=nu*rho,Re=rho*v*d/mu;
+ const f=Re<2300?64/Math.max(1,Re):0.316/Math.pow(Re,0.25);
+ const dp=f*(L/d)*rho*v*v/2/1e5;
+ $('hyfres').style.display='block';
+ $('hyfres').innerHTML='Velocity = <b>'+v.toFixed(2)+' m/s</b> '+(v<6?'✓ (≤6 m/s)':'⚠ too high')+'<br>Re = '+Re.toFixed(0)+' ('+(Re<2300?'laminar':'turbulent')+')<br>ΔP = <b>'+dp.toFixed(2)+' bar</b>';}
+function hyAcc(){const P0=+$('hya0').value,P1=+$('hya1').value,P2=+$('hya2').value,dV=+$('hyadv').value,n=1.4;
+ const den=Math.pow(P0/P1,1/n)-Math.pow(P0/P2,1/n);
+ $('hyares').style.display='block';
+ if(den<=0.001){$('hyares').innerHTML='⚠ Invalid: P0 ≈ 0.9×P1 recommended';return;}
+ $('hyares').innerHTML='Required accumulator = <b>'+(dV/den).toFixed(1)+' L</b> → next standard (10/20/32/50 L)';}
+/* ================= CALC ================= */
+const KEYS=['C','⌫','(',')','7','8','9','/','4','5','6','*','1','2','3','-','0','.','^','+'];
+let expr='';
+KEYS.forEach(k=>{const b=document.createElement('button');b.className='btn';b.textContent=k;
+ b.onclick=()=>{if(k==='C')expr='';else if(k==='⌫')expr=expr.slice(0,-1);else expr+=k;$('calcd').value=expr||'0';};
+ $('calcgrid').appendChild(b);});
+const eq=document.createElement('button');eq.className='btn on';eq.textContent='=';eq.style.gridColumn='span 4';
+eq.onclick=()=>{if(!/^[-+*/(). 0-9^]+$/.test(expr)){$('calcd').value='Err';expr='';return;}
+ try{const r=Function('"use strict";return('+(expr.replace(/\^/g,'**'))+')')();$('calcd').value=expr+' = '+r;expr='';}
+ catch(e){$('calcd').value='Err';expr='';}};
+$('calcgrid').appendChild(eq);
+/* ================= CONVERTER ================= */
+const CONV={
+ 'Length':{m:1,cm:.01,mm:.001,km:1000,ft:.3048,in:.0254,yd:.9144},
+ 'Pressure':{bar:1,kPa:.01,MPa:10,psi:.0689476,'kg/cm²':.980665,mmHg:.00133322},
+ 'Flow':{'m³/h':1,'L/min':1/60,'L/s':.06,gpm:.227125},
+ 'Power':{kW:1,W:.001,HP:.7457,'BTU/h':.000293071},
+ 'Weight':{kg:1,g:.001,t:1000,lb:.453592},
+ 'Area':{'m²':1,'cm²':.0001,'ft²':.092903,'in²':.00064516},
+ 'Temperature':{'°C':1,'°F':1,'K':1}};
+function fillConv(){const cat=$('cvcat').value,us=Object.keys(CONV[cat]);
+ $('cvfrom').innerHTML=$('cvto').innerHTML=us.map(u=>'<option>'+u+'</option>').join('');
+ $('cvto').selectedIndex=Math.min(1,us.length-1);doConv();}
+Object.keys(CONV).forEach(cName=>{$('cvcat').appendChild(new Option(cName,cName));});
+$('cvcat').onchange=fillConv;$('cvfrom').onchange=doConv;$('cvto').onchange=doConv;$('cvval').oninput=doConv;
+function doConv(){const cat=$('cvcat').value,f=$('cvfrom').value,t=$('cvto').value,v=+$('cvval').value;
+ let out;
+ if(cat==='Temperature'){const toC={'°C':v,'°F':(v-32)*5/9,'K':v-273.15}[f];
+  out={'°C':toC,'°F':toC*9/5+32,'K':toC+273.15}[t];}
+ else out=v*CONV[cat][f]/CONV[cat][t];
+ $('cvres').innerHTML='<b>'+v+' '+f+'</b> = <b>'+(+out.toFixed(6))+' '+t+'</b>';}
+fillConv();
+/* ================= NOTES / SETTINGS / SW ================= */
+const np=$('notepad');np.value=localStorage.getItem('ess_notes')||'';
+np.oninput=()=>{localStorage.setItem('ess_notes',np.value);$('notesaved').textContent='Saved ✓ '+new Date().toLocaleTimeString();};
+let dP;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dP=e;$('installBtn').hidden=false;});
+$('installBtn').onclick=()=>{if(dP){dP.prompt();dP=null;}};
+$('clearBtn').onclick=()=>{if(confirm('Sara saved data delete karein?')){localStorage.clear();location.reload();}};
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))
+ navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
